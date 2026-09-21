@@ -1,0 +1,33 @@
+# Reference documentation
+reference/
+
+# Storage volumes (evidence, snapshots)
+storage/
+
+# Java / Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+*.class
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+
+# IDE & OS
+.idea/
+*.iml
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Environment variables & local secrets
+.env

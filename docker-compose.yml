@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: sih-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sih_cybercrime}
+      POSTGRES_USER: ${POSTGRES_USER:-sih_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sih_password_secure_123}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sih_user} -d ${POSTGRES_DB:-sih_cybercrime}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sih-network
+
+  api:
+    build:
+      context: ./data-service
+      dockerfile: Dockerfile
+    container_name: sih-data-service
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-sih_cybercrime}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-sih_user}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-sih_password_secure_123}
+      JWT_SECRET: ${JWT_SECRET:-404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+      HMAC_SECRET_KEY: ${HMAC_SECRET_KEY:-c3VwZXJzZWNyZXRobWFja2V5MTIzNDU2Nzg5MDEyMzQ1Njc4OTA=}
+      DATA_ENCRYPTION_KEY: ${DATA_ENCRYPTION_KEY:-MTIzNDU2Nzg5MDEyMzQ1Ng==}
+      MODEL_SERVICE_URL: http://model:8001
+      STORAGE_EVIDENCE_PATH: /app/storage/evidence
+      STORAGE_SNAPSHOTS_PATH: /app/storage/snapshots
+    ports:
+      - "${API_PORT:-8080}:8080"
+    volumes:
+      - ./storage/evidence:/app/storage/evidence
+      - ./storage/snapshots:/app/storage/snapshots
+    networks:
+      - sih-network
+
+  model:
+    build:
+      context: ./model-service
+      dockerfile: Dockerfile
+    container_name: sih-model-service
+    restart: unless-stopped
+    environment:
+      PORT: 8001
+      ARTIFACTS_DIR: /app/artifacts
+      SNAPSHOTS_DIR: /app/storage/snapshots
+    ports:
+      - "${MODEL_PORT:-8001}:8001"
+    volumes:
+      - ./model-service/artifacts:/app/artifacts
+      - ./storage/snapshots:/app/storage/snapshots:ro
+    networks:
+      - sih-network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  sih-network:
+    driver: bridge
