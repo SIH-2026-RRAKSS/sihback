@@ -13,5 +13,6 @@ public interface JurisdictionRepository extends JpaRepository<Jurisdiction, UUID
     Optional<Jurisdiction> findByPath(String path);
     List<Jurisdiction> findByPathStartingWith(String pathPrefix);
     List<Jurisdiction> findByParentId(UUID parentId);
+    Optional<Jurisdiction> findByNameIgnoreCase(String name);
     boolean existsByPath(String path);
 }

@@ -25,6 +25,24 @@ class DataServiceApplicationTests {
     @MockBean
     private UserRepository userRepository;
 
+    @MockBean
+    private com.sih.dataservice.complaints.repository.ComplaintRepository complaintRepository;
+
+    @MockBean
+    private com.sih.dataservice.complaints.repository.ComplaintAccountRepository complaintAccountRepository;
+
+    @MockBean
+    private com.sih.dataservice.complaints.repository.FinancialEntityRepository financialEntityRepository;
+
+    @MockBean
+    private com.sih.dataservice.complaints.repository.CaseEventRepository caseEventRepository;
+
+    @MockBean
+    private com.sih.dataservice.complaints.repository.EvidenceRepository evidenceRepository;
+
+    @MockBean
+    private com.sih.dataservice.notify.repository.NotificationRepository notificationRepository;
+
     @Test
     void contextLoads() {
     }
