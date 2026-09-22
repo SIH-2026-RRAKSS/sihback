@@ -21,6 +21,8 @@ venv/
 dist/
 build/
 .pytest_cache/
+model-service/artifacts/*
+!model-service/artifacts/.gitkeep
 
 # IDE & OS
 .idea/
