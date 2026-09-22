@@ -39,6 +39,10 @@ class GraphServiceTest {
     private ScopeService scopeService;
     @Mock
     private BankRepository bankRepository;
+    @Mock
+    private com.sih.dataservice.complaints.repository.ComplaintRepository complaintRepository;
+    @Mock
+    private com.sih.dataservice.complaints.repository.ComplaintAccountRepository complaintAccountRepository;
 
     private GraphService graphService;
 
@@ -49,7 +53,7 @@ class GraphServiceTest {
 
     @BeforeEach
     void setUp() {
-        graphService = new GraphService(graphEngine, scopeService, bankRepository);
+        graphService = new GraphService(graphEngine, scopeService, bankRepository, complaintRepository, complaintAccountRepository);
 
         myBankId = UUID.randomUUID();
         otherBankId = UUID.randomUUID();

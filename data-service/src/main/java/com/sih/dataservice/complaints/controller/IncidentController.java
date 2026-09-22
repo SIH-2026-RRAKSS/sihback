@@ -8,6 +8,14 @@ import com.sih.dataservice.complaints.dto.TransitionCaseRequest;
 import com.sih.dataservice.complaints.entity.ComplaintStatus;
 import com.sih.dataservice.complaints.service.CaseWorkflowService;
 import com.sih.dataservice.complaints.service.ComplaintService;
+import com.sih.dataservice.dossier.dto.DossierFormat;
+import com.sih.dataservice.dossier.dto.IncidentDossierDto;
+import com.sih.dataservice.dossier.service.DossierService;
+import com.sih.dataservice.graph.dto.SubgraphResponseDto;
+import com.sih.dataservice.graph.service.GraphService;
+import com.sih.dataservice.ml.dto.PredictionDto;
+import com.sih.dataservice.ml.entity.Prediction;
+import com.sih.dataservice.ml.service.PredictionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,6 +24,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,10 +39,20 @@ public class IncidentController {
 
     private final ComplaintService complaintService;
     private final CaseWorkflowService caseWorkflowService;
+    private final GraphService graphService;
+    private final PredictionService predictionService;
+    private final DossierService dossierService;
 
-    public IncidentController(ComplaintService complaintService, CaseWorkflowService caseWorkflowService) {
+    public IncidentController(ComplaintService complaintService,
+                              CaseWorkflowService caseWorkflowService,
+                              GraphService graphService,
+                              PredictionService predictionService,
+                              DossierService dossierService) {
         this.complaintService = complaintService;
         this.caseWorkflowService = caseWorkflowService;
+        this.graphService = graphService;
+        this.predictionService = predictionService;
+        this.dossierService = dossierService;
     }
 
     @Operation(summary = "List incidents visible to authenticated staff based on role and jurisdiction/bank scope")
@@ -86,4 +105,60 @@ public class IncidentController {
                 id, request, principal, httpRequest.getRemoteAddr());
         return ResponseEntity.ok(ApiResponse.ok(response, "Case status updated successfully"));
     }
+
+    @Operation(summary = "Get K-hop incident graph around complaint accounts with scope masking")
+    @GetMapping("/{id}/graph")
+    @PreAuthorize("hasAnyRole('POLICE', 'CYBER_OFFICER', 'BANK_EMPLOYEE', 'BANK_MANAGER')")
+    public ResponseEntity<ApiResponse<SubgraphResponseDto>> getIncidentGraph(
+            @PathVariable("id") UUID id,
+            @RequestParam(name = "hops", defaultValue = "2") int hops,
+            @RequestParam(name = "maxNodes", defaultValue = "50") int maxNodes,
+            @AuthenticationPrincipal UserPrincipal principal) {
+
+        SubgraphResponseDto graph = graphService.getIncidentGraph(id, hops, maxNodes, principal);
+        return ResponseEntity.ok(ApiResponse.ok(graph));
+    }
+
+    @Operation(summary = "Score complaint with ML model service and auto-triage (falls back to anomaly gate)")
+    @PostMapping("/{id}/predict")
+    @PreAuthorize("hasAnyRole('POLICE', 'CYBER_OFFICER')")
+    public ResponseEntity<ApiResponse<PredictionDto>> predict(
+            @PathVariable("id") UUID id,
+            @AuthenticationPrincipal UserPrincipal principal) {
+
+        // Validate scope
+        complaintService.getIncidentDetail(id, principal);
+        Prediction prediction = predictionService.scoreComplaint(id);
+        return ResponseEntity.ok(ApiResponse.ok(PredictionDto.fromEntity(prediction)));
+    }
+
+    @Operation(summary = "Export complete incident dossier in JSON, Markdown, or HTML format")
+    @GetMapping(value = "/{id}/dossier")
+    @PreAuthorize("hasAnyRole('POLICE', 'CYBER_OFFICER')")
+    public ResponseEntity<?> getDossier(
+            @PathVariable("id") UUID id,
+            @RequestParam(name = "format", defaultValue = "JSON") DossierFormat format,
+            @AuthenticationPrincipal UserPrincipal principal,
+            HttpServletRequest httpRequest) {
+
+        String clientIp = httpRequest.getRemoteAddr();
+        switch (format) {
+            case MARKDOWN:
+                String md = dossierService.exportMarkdown(id, principal, clientIp);
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_TYPE, "text/markdown; charset=UTF-8")
+                        .body(md);
+            case HTML:
+                String html = dossierService.exportHtml(id, principal, clientIp);
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_TYPE, "text/html; charset=UTF-8")
+                        .body(html);
+            case JSON:
+            default:
+                IncidentDossierDto dto = dossierService.getDossier(id, principal, clientIp);
+                return ResponseEntity.ok(ApiResponse.ok(dto));
+        }
+    }
 }
+
+

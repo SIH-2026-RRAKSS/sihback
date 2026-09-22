@@ -49,6 +49,12 @@ class DataServiceApplicationTests {
     @MockBean
     private com.sih.dataservice.graph.repository.TransactionRepository transactionRepository;
 
+    @MockBean
+    private com.sih.dataservice.ml.repository.ModelVersionRepository modelVersionRepository;
+
+    @MockBean
+    private com.sih.dataservice.ml.repository.PredictionRepository predictionRepository;
+
     @Test
     void contextLoads() {
     }

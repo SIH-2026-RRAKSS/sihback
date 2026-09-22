@@ -28,13 +28,42 @@ public class GraphService {
     private final TemporalGraphEngine graphEngine;
     private final ScopeService scopeService;
     private final BankRepository bankRepository;
+    private final com.sih.dataservice.complaints.repository.ComplaintRepository complaintRepository;
+    private final com.sih.dataservice.complaints.repository.ComplaintAccountRepository complaintAccountRepository;
 
     private final Map<UUID, String> bankNameCache = new ConcurrentHashMap<>();
 
-    public GraphService(TemporalGraphEngine graphEngine, ScopeService scopeService, BankRepository bankRepository) {
+    public GraphService(
+            TemporalGraphEngine graphEngine,
+            ScopeService scopeService,
+            BankRepository bankRepository,
+            com.sih.dataservice.complaints.repository.ComplaintRepository complaintRepository,
+            com.sih.dataservice.complaints.repository.ComplaintAccountRepository complaintAccountRepository) {
         this.graphEngine = graphEngine;
         this.scopeService = scopeService;
         this.bankRepository = bankRepository;
+        this.complaintRepository = complaintRepository;
+        this.complaintAccountRepository = complaintAccountRepository;
+    }
+
+    /**
+     * Extracts and masks the transaction graph for an incident (FR-GRA-2, FR-GRA-3).
+     */
+    public SubgraphResponseDto getIncidentGraph(UUID complaintId, int hops, int maxNodes, UserPrincipal principal) {
+        com.sih.dataservice.complaints.entity.Complaint complaint = complaintRepository.findById(complaintId)
+                .orElseThrow(() -> ApiException.notFound("Incident not found"));
+
+        String path = complaint.getJurisdiction() != null ? complaint.getJurisdiction().getPath() : null;
+        scopeService.enforceCaseAccess(principal, complaint.getComplainant().getId(), null, path);
+
+        List<com.sih.dataservice.complaints.entity.ComplaintAccount> accounts =
+                complaintAccountRepository.findByComplaintId(complaintId);
+        if (accounts.isEmpty()) {
+            return new SubgraphResponseDto(null, List.of(), List.of());
+        }
+
+        UUID rootEntityId = accounts.get(0).getEntity().getId();
+        return getKhopSubgraph(rootEntityId, hops, null, null, maxNodes, principal);
     }
 
     /**
