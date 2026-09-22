@@ -79,6 +79,8 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/complaints/**").hasAnyRole("COMPLAINANT", "CYBER_OFFICER", "POLICE")
                         .requestMatchers("/incidents/**").hasAnyRole("CYBER_OFFICER", "POLICE", "BANK_EMPLOYEE", "BANK_MANAGER")
+                        .requestMatchers("/bank-uploads/**").hasAnyRole("BANK_EMPLOYEE", "BANK_MANAGER", "CYBER_OFFICER")
+                        .requestMatchers("/graph/**").hasAnyRole("CYBER_OFFICER", "POLICE", "BANK_EMPLOYEE", "BANK_MANAGER")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

@@ -43,6 +43,12 @@ class DataServiceApplicationTests {
     @MockBean
     private com.sih.dataservice.notify.repository.NotificationRepository notificationRepository;
 
+    @MockBean
+    private com.sih.dataservice.bankupload.repository.BankUploadRepository bankUploadRepository;
+
+    @MockBean
+    private com.sih.dataservice.graph.repository.TransactionRepository transactionRepository;
+
     @Test
     void contextLoads() {
     }
