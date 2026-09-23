@@ -42,17 +42,20 @@ public class IncidentController {
     private final GraphService graphService;
     private final PredictionService predictionService;
     private final DossierService dossierService;
+    private final com.sih.dataservice.freeze.service.FreezeRequestService freezeRequestService;
 
     public IncidentController(ComplaintService complaintService,
                               CaseWorkflowService caseWorkflowService,
                               GraphService graphService,
                               PredictionService predictionService,
-                              DossierService dossierService) {
+                              DossierService dossierService,
+                              com.sih.dataservice.freeze.service.FreezeRequestService freezeRequestService) {
         this.complaintService = complaintService;
         this.caseWorkflowService = caseWorkflowService;
         this.graphService = graphService;
         this.predictionService = predictionService;
         this.dossierService = dossierService;
+        this.freezeRequestService = freezeRequestService;
     }
 
     @Operation(summary = "List incidents visible to authenticated staff based on role and jurisdiction/bank scope")
@@ -158,6 +161,16 @@ public class IncidentController {
                 IncidentDossierDto dto = dossierService.getDossier(id, principal, clientIp);
                 return ResponseEntity.ok(ApiResponse.ok(dto));
         }
+    }
+
+    @Operation(summary = "Get all freeze requests associated with this incident")
+    @GetMapping("/{id}/freeze-requests")
+    @PreAuthorize("hasAnyRole('POLICE', 'CYBER_OFFICER', 'BANK_EMPLOYEE', 'BANK_MANAGER')")
+    public ResponseEntity<ApiResponse<java.util.List<com.sih.dataservice.freeze.dto.FreezeRequestResponseDto>>> getIncidentFreezeRequests(
+            @PathVariable("id") UUID id,
+            @AuthenticationPrincipal UserPrincipal principal) {
+        java.util.List<com.sih.dataservice.freeze.dto.FreezeRequestResponseDto> list = freezeRequestService.getFreezeRequestsForComplaint(id, principal);
+        return ResponseEntity.ok(ApiResponse.ok(list));
     }
 }
 

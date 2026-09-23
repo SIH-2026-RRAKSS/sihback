@@ -55,6 +55,9 @@ class DataServiceApplicationTests {
     @MockBean
     private com.sih.dataservice.ml.repository.PredictionRepository predictionRepository;
 
+    @MockBean
+    private com.sih.dataservice.freeze.repository.FreezeRequestRepository freezeRequestRepository;
+
     @Test
     void contextLoads() {
     }

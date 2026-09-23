@@ -50,6 +50,18 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDeniedException(org.springframework.security.access.AccessDeniedException ex) {
+        String traceId = getTraceId();
+        log.warn("Access denied [traceId={}]: {}", traceId, ex.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse(
+                "ACCESS_DENIED",
+                "Access is denied",
+                traceId
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
         String traceId = getTraceId();

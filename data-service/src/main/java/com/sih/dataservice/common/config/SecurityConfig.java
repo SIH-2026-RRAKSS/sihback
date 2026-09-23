@@ -80,6 +80,7 @@ public class SecurityConfig {
                         .requestMatchers("/complaints/**").hasAnyRole("COMPLAINANT", "CYBER_OFFICER", "POLICE")
                         .requestMatchers("/incidents/**").hasAnyRole("CYBER_OFFICER", "POLICE", "BANK_EMPLOYEE", "BANK_MANAGER")
                         .requestMatchers("/bank-uploads/**").hasAnyRole("BANK_EMPLOYEE", "BANK_MANAGER", "CYBER_OFFICER")
+                        .requestMatchers("/freeze-requests/**").hasAnyRole("POLICE", "CYBER_OFFICER", "BANK_EMPLOYEE", "BANK_MANAGER", "ADMIN")
                         .requestMatchers("/graph/**").hasAnyRole("CYBER_OFFICER", "POLICE", "BANK_EMPLOYEE", "BANK_MANAGER")
                         .requestMatchers("/policy/**").hasAnyRole("CYBER_OFFICER", "POLICE")
                         .requestMatchers("/stats/**").hasAnyRole("CYBER_OFFICER", "POLICE", "ADMIN")
