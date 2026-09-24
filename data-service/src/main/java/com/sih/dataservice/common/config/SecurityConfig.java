@@ -71,6 +71,7 @@ public class SecurityConfig {
                                 "/health",
                                 "/ping",
                                 "/auth/**",
+                                "/whatsapp/**",
                                 "/actuator/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",

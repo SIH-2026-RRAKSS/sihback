@@ -10,6 +10,7 @@ import com.sih.dataservice.complaints.dto.TransitionCaseRequest;
 import com.sih.dataservice.complaints.entity.CaseEvent;
 import com.sih.dataservice.complaints.entity.CaseLabel;
 import com.sih.dataservice.complaints.entity.Complaint;
+import com.sih.dataservice.complaints.entity.ComplaintChannel;
 import com.sih.dataservice.complaints.entity.ComplaintStatus;
 import com.sih.dataservice.complaints.entity.PublicStatus;
 import com.sih.dataservice.complaints.repository.CaseEventRepository;
@@ -214,9 +215,13 @@ public class CaseWorkflowService {
         String payload = String.format("{\"reference\":\"%s\",\"publicStatus\":\"%s\",\"internalStatus\":\"%s\"}",
                 complaint.getHumanReference(), publicStatus.name(), toStatus.name());
 
+        NotificationChannel channel = complaint.getChannel() == ComplaintChannel.WHATSAPP
+                ? NotificationChannel.WHATSAPP
+                : NotificationChannel.SMS;
+
         Notification notification = new Notification(
                 complaint.getComplainant(),
-                NotificationChannel.SMS,
+                channel,
                 "CASE_STATUS_UPDATE",
                 payload
         );

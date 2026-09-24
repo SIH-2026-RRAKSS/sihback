@@ -58,6 +58,9 @@ class DataServiceApplicationTests {
     @MockBean
     private com.sih.dataservice.freeze.repository.FreezeRequestRepository freezeRequestRepository;
 
+    @MockBean
+    private com.sih.dataservice.whatsapp.repository.WhatsAppSessionRepository whatsAppSessionRepository;
+
     @Test
     void contextLoads() {
     }
