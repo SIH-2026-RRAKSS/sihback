@@ -32,6 +32,7 @@ public interface ComplaintRepository extends JpaRepository<Complaint, UUID>, Jpa
     long countByCreatedAtBetween(Instant start, Instant end);
 
     java.util.List<Complaint> findByStatusIn(java.util.Collection<ComplaintStatus> statuses);
+    long countByStatusIn(java.util.Collection<ComplaintStatus> statuses);
 
     @Query("SELECT c.status, COUNT(c) FROM Complaint c GROUP BY c.status")
     java.util.List<Object[]> countByStatusGroup();

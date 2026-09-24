@@ -17,4 +17,5 @@ public interface ModelVersionRepository extends JpaRepository<ModelVersion, UUID
     List<ModelVersion> findByName(String name);
 
     List<ModelVersion> findByStatus(ModelVersionStatus status);
+    List<ModelVersion> findAllByOrderByCreatedAtDesc();
 }

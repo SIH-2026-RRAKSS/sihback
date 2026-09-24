@@ -172,6 +172,20 @@ public class IncidentController {
         java.util.List<com.sih.dataservice.freeze.dto.FreezeRequestResponseDto> list = freezeRequestService.getFreezeRequestsForComplaint(id, principal);
         return ResponseEntity.ok(ApiResponse.ok(list));
     }
+
+    @Operation(summary = "Update fraud label of a closed case post-closure (FR-LBL-1). Restricted strictly to CYBER_OFFICER.")
+    @PutMapping("/{id}/label")
+    @PreAuthorize("hasRole('CYBER_OFFICER')")
+    public ResponseEntity<ApiResponse<IncidentDetailDto>> updateCaseLabel(
+            @PathVariable("id") UUID id,
+            @Valid @RequestBody com.sih.dataservice.complaints.dto.UpdateCaseLabelRequest request,
+            @AuthenticationPrincipal UserPrincipal principal,
+            HttpServletRequest httpRequest) {
+
+        IncidentDetailDto response = caseWorkflowService.updateCaseLabel(
+                id, request.getLabel(), request.getReason(), principal, httpRequest.getRemoteAddr());
+        return ResponseEntity.ok(ApiResponse.ok(response, "Case label updated successfully"));
+    }
 }
 
 

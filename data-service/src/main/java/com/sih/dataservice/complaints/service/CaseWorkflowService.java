@@ -182,6 +182,56 @@ public class CaseWorkflowService {
         return IncidentDetailDto.fromEntity(complaint);
     }
 
+    /**
+     * Updates the fraud label of an incident post-closure (FR-LBL-1).
+     * Restricted strictly to CYBER_OFFICER.
+     */
+    @Transactional
+    public IncidentDetailDto updateCaseLabel(UUID complaintId, CaseLabel newLabel, UserPrincipal principal, String clientIp) {
+        if (principal.getRole() != UserRole.CYBER_OFFICER) {
+            throw ApiException.forbidden("Only CYBER_OFFICER can change case labels");
+        }
+        if (newLabel == null) {
+            throw ApiException.badRequest("New label must be provided");
+        }
+
+        Complaint complaint = getComplaintAndCheckScope(complaintId, principal);
+        CaseLabel oldLabel = complaint.getLabel();
+        ComplaintStatus oldStatus = complaint.getStatus();
+
+        ComplaintStatus newStatus = newLabel == CaseLabel.FRAUD
+                ? ComplaintStatus.CLOSED_FRAUD
+                : ComplaintStatus.CLOSED_NOT_FRAUD;
+
+        User actor = userRepository.findById(principal.getId()).orElse(null);
+
+        complaint.setLabel(newLabel);
+        complaint.setStatus(newStatus);
+        complaint.setLabeledBy(actor);
+        complaint.setLabeledAt(Instant.now(clock));
+        complaint.setUpdatedAt(Instant.now(clock));
+
+        complaintRepository.save(complaint);
+
+        // Record Case Event
+        CaseEvent event = new CaseEvent(complaint, actor, oldStatus, newStatus,
+                "Case relabeled from " + oldLabel + " to " + newLabel);
+        caseEventRepository.save(event);
+
+        // Audit Log
+        String detailJson = String.format("{\"oldLabel\":\"%s\",\"newLabel\":\"%s\",\"oldStatus\":\"%s\",\"newStatus\":\"%s\"}",
+                oldLabel, newLabel, oldStatus, newStatus);
+        auditService.log(principal.getId(), principal.getRole().name(), "RELABEL_CASE", "COMPLAINT",
+                complaint.getId().toString(), detailJson, clientIp);
+
+        return IncidentDetailDto.fromEntity(complaint);
+    }
+
+    @Transactional
+    public IncidentDetailDto updateCaseLabel(UUID complaintId, CaseLabel newLabel, String reason, UserPrincipal principal, String clientIp) {
+        return updateCaseLabel(complaintId, newLabel, principal, clientIp);
+    }
+
     private Complaint getComplaintAndCheckScope(UUID complaintId, UserPrincipal principal) {
         Complaint complaint = complaintRepository.findById(complaintId)
                 .orElseThrow(() -> ApiException.notFound("Case not found"));

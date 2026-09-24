@@ -195,4 +195,36 @@ class CaseWorkflowServiceTest {
         assertThat(result.getLabel()).isEqualTo(CaseLabel.FRAUD);
         verify(notificationRepository).save(any(Notification.class));
     }
+
+    @Test
+    void cyberOfficerCanRelabelCasePostClosure() {
+        complaint.setStatus(ComplaintStatus.CLOSED_FRAUD);
+        complaint.setLabel(CaseLabel.FRAUD);
+        UserPrincipal cyberPrincipal = UserPrincipal.fromUser(cyberOfficerUser);
+
+        when(complaintRepository.findById(complaint.getId())).thenReturn(Optional.of(complaint));
+        when(userRepository.findById(cyberOfficerUser.getId())).thenReturn(Optional.of(cyberOfficerUser));
+        when(complaintRepository.save(any(Complaint.class))).thenReturn(complaint);
+
+        IncidentDetailDto result = service.updateCaseLabel(
+                complaint.getId(), CaseLabel.NOT_FRAUD, "Evidence disproved fraud allegation", cyberPrincipal, "127.0.0.1");
+
+        assertThat(result.getLabel()).isEqualTo(CaseLabel.NOT_FRAUD);
+        assertThat(result.getStatus()).isEqualTo(ComplaintStatus.CLOSED_NOT_FRAUD);
+        verify(caseEventRepository).save(any(CaseEvent.class));
+        verify(auditService).log(eq(cyberOfficerUser.getId()), eq("CYBER_OFFICER"), eq("RELABEL_CASE"),
+                eq("COMPLAINT"), eq(complaint.getId().toString()), anyString(), eq("127.0.0.1"));
+    }
+
+    @Test
+    void nonCyberOfficerCannotRelabelCase() {
+        complaint.setStatus(ComplaintStatus.CLOSED_FRAUD);
+        complaint.setLabel(CaseLabel.FRAUD);
+        UserPrincipal policePrincipal = UserPrincipal.fromUser(policeUser);
+
+        assertThatThrownBy(() -> service.updateCaseLabel(
+                complaint.getId(), CaseLabel.NOT_FRAUD, "Attempted relabel", policePrincipal, "127.0.0.1"))
+                .isInstanceOf(ApiException.class)
+                .hasMessageContaining("Only CYBER_OFFICER can change case labels");
+    }
 }

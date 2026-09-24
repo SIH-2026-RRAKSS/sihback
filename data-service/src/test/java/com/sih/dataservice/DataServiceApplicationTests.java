@@ -61,6 +61,9 @@ class DataServiceApplicationTests {
     @MockBean
     private com.sih.dataservice.whatsapp.repository.WhatsAppSessionRepository whatsAppSessionRepository;
 
+    @MockBean
+    private com.sih.dataservice.ml.repository.TrainingSnapshotRepository trainingSnapshotRepository;
+
     @Test
     void contextLoads() {
     }

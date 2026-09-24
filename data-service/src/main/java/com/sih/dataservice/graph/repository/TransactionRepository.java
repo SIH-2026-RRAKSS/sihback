@@ -32,5 +32,10 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
 
     Page<Transaction> findByComplaintId(UUID complaintId, Pageable pageable);
 
+    List<Transaction> findByComplaintId(UUID complaintId);
+
+    @Query("SELECT t FROM Transaction t WHERE t.sender.id IN :entityIds OR t.receiver.id IN :entityIds")
+    List<Transaction> findBySenderIdInOrReceiverIdIn(@Param("entityIds") java.util.Collection<UUID> entityIds);
+
     Page<Transaction> findByUploadId(UUID uploadId, Pageable pageable);
 }

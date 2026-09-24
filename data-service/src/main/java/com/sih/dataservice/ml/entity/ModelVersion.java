@@ -31,6 +31,10 @@ public class ModelVersion {
     private ModelVersionStatus status = ModelVersionStatus.CANDIDATE;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "snapshot_id")
+    private TrainingSnapshot snapshot;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "promoted_by")
     private User promotedBy;
 
@@ -89,6 +93,14 @@ public class ModelVersion {
 
     public void setStatus(ModelVersionStatus status) {
         this.status = status;
+    }
+
+    public TrainingSnapshot getSnapshot() {
+        return snapshot;
+    }
+
+    public void setSnapshot(TrainingSnapshot snapshot) {
+        this.snapshot = snapshot;
     }
 
     public User getPromotedBy() {
