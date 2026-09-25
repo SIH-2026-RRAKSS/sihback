@@ -59,7 +59,7 @@ public class IncidentController {
     }
 
     @Operation(summary = "List incidents visible to authenticated staff based on role and jurisdiction/bank scope")
-    @GetMapping
+    @GetMapping("/legacy")
     @PreAuthorize("hasAnyRole('POLICE', 'CYBER_OFFICER', 'BANK_EMPLOYEE', 'BANK_MANAGER', 'ADMIN')")
     public ResponseEntity<ApiResponse<Page<IncidentDetailDto>>> listIncidents(
             @RequestParam(name = "status", required = false) ComplaintStatus status,
@@ -71,7 +71,7 @@ public class IncidentController {
     }
 
     @Operation(summary = "Get full incident detail by ID (accounts, events, evidence). Returns 404 if out-of-scope.")
-    @GetMapping("/{id}")
+    @GetMapping("/legacy/{id}")
     @PreAuthorize("hasAnyRole('POLICE', 'CYBER_OFFICER', 'BANK_EMPLOYEE', 'BANK_MANAGER', 'ADMIN')")
     public ResponseEntity<ApiResponse<IncidentDetailDto>> getIncidentDetail(
             @PathVariable("id") UUID id,
@@ -187,5 +187,6 @@ public class IncidentController {
         return ResponseEntity.ok(ApiResponse.ok(response, "Case label updated successfully"));
     }
 }
+
 
 
