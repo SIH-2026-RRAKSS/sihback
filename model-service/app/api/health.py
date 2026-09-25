@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 from typing import Dict, Any
+from app.registry.registry import registry
 
 router = APIRouter()
 
@@ -11,7 +12,7 @@ def health_check() -> Dict[str, Any]:
         "status": "healthy",
         "service": "model-service",
         "active_models": {
-            "graphsage": "none",
-            "xgboost": "none"
+            "graphsage": registry.get_active_version("graphsage") or "none",
+            "xgboost": registry.get_active_version("xgboost") or "none"
         }
     }

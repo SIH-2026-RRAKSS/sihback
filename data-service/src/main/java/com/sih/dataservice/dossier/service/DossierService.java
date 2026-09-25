@@ -37,7 +37,7 @@ public class DossierService {
         this.clock = clock;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public IncidentDossierDto getDossier(UUID incidentId, UserPrincipal principal, String clientIp) {
         // Enforce scope and load incident
         IncidentDetailDto detail = complaintService.getIncidentDetail(incidentId, principal);
@@ -58,7 +58,7 @@ public class DossierService {
         );
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public String exportMarkdown(UUID incidentId, UserPrincipal principal, String clientIp) {
         IncidentDossierDto dossier = getDossier(incidentId, principal, clientIp);
         IncidentDetailDto inc = dossier.getIncident();

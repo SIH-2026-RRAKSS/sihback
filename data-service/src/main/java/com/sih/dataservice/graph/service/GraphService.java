@@ -14,6 +14,7 @@ import com.sih.dataservice.users.entity.Bank;
 import com.sih.dataservice.users.entity.UserRole;
 import com.sih.dataservice.users.repository.BankRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
+@Transactional(readOnly = true)
 public class GraphService {
 
     private final TemporalGraphEngine graphEngine;

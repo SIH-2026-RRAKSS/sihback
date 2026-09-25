@@ -73,7 +73,7 @@ class GraphSAGENet(nn.Module):
         h = self.dropout1(h)
         h = F.relu(self.layer2(h, adj_list))
         h = self.dropout2(h)
-        logits = self.node_classifier(h).squeeze(-1)
+        logits = self.node_classifier(h).view(-1)
         return logits, h
 
 
@@ -218,7 +218,7 @@ class GraphSAGEFraudClassifier:
     ) -> Tuple[float, float, List[Dict[str, Any]], torch.Tensor]:
         self.net.eval()
         if not nodes:
-            return 0.0, 0.5, [], torch.zeros(self.in_features)
+            return 0.0, 0.5, [], torch.zeros((0, self.in_features))
 
         if not root_node_id:
             root_node_id = nodes[0].get("id")
@@ -274,6 +274,12 @@ class GraphSAGEFraudClassifier:
 
     def _compute_feature_importance(self, x_tensor: torch.Tensor, top_k: int = 5) -> List[Dict[str, float]]:
         """Compute sensitivity weights of node features across the graph."""
+        if x_tensor.numel() == 0 or (x_tensor.dim() > 0 and x_tensor.size(0) == 0):
+            return []
+
+        if x_tensor.dim() == 1:
+            x_tensor = x_tensor.unsqueeze(0)
+
         # Mean absolute magnitude of normalized features
         avg_act = torch.mean(torch.abs(x_tensor), dim=0).detach().cpu().numpy()
         tot = np.sum(avg_act) + 1e-5
