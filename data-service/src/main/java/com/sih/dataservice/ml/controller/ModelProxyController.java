@@ -130,6 +130,24 @@ public class ModelProxyController {
         return proxyPost(path);
     }
 
+        @org.springframework.web.bind.annotation.PostMapping(value = "/predict/subgraph", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyRole('POLICE', 'CYBER_OFFICER', 'ADMIN')")
+    public ResponseEntity<?> proxyPredictSubgraph(@org.springframework.web.bind.annotation.RequestBody String body) {
+        try {
+            String rawJson = restClient.post()
+                    .uri("/api/predict/subgraph")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(body)
+                    .retrieve()
+                    .body(String.class);
+            return ResponseEntity.ok(rawJson);
+        } catch (Exception e) {
+            log.error("Failed to proxy POST /api/predict/subgraph to model service: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                    .body("{\"error\": \"Model service unavailable or returned an error\"}");
+        }
+    }
+
     private ResponseEntity<?> proxyPost(String path) {
         try {
             String rawJson = restClient.post()
@@ -158,6 +176,7 @@ public class ModelProxyController {
         }
     }
 }
+
 
 
 

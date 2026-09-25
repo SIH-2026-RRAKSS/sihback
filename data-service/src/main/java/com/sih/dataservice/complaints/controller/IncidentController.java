@@ -123,7 +123,7 @@ public class IncidentController {
     }
 
     @Operation(summary = "Score complaint with ML model service and auto-triage (falls back to anomaly gate)")
-    @PostMapping("/{id}/predict")
+    @PostMapping("/legacy/{id}/predict")
     @PreAuthorize("hasAnyRole('POLICE', 'CYBER_OFFICER')")
     public ResponseEntity<ApiResponse<PredictionDto>> predict(
             @PathVariable("id") UUID id,
@@ -187,6 +187,7 @@ public class IncidentController {
         return ResponseEntity.ok(ApiResponse.ok(response, "Case label updated successfully"));
     }
 }
+
 
 
 
