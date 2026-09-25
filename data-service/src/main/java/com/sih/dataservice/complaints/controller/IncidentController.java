@@ -110,7 +110,7 @@ public class IncidentController {
     }
 
     @Operation(summary = "Get K-hop incident graph around complaint accounts with scope masking")
-    @GetMapping("/{id}/graph")
+    @GetMapping("/legacy/{id}/graph")
     @PreAuthorize("hasAnyRole('POLICE', 'CYBER_OFFICER', 'BANK_EMPLOYEE', 'BANK_MANAGER', 'ADMIN')")
     public ResponseEntity<ApiResponse<SubgraphResponseDto>> getIncidentGraph(
             @PathVariable("id") UUID id,
@@ -187,6 +187,7 @@ public class IncidentController {
         return ResponseEntity.ok(ApiResponse.ok(response, "Case label updated successfully"));
     }
 }
+
 
 
 

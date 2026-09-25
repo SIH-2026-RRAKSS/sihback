@@ -29,9 +29,10 @@ public class GeoController {
     }
 
     @Operation(summary = "Get top multi-hop geographic laundering corridors")
-    @GetMapping("/geo/corridors")
+    @GetMapping("/legacy/geo/corridors")
     public ResponseEntity<List<GeoCorridorDto>> getGeoCorridors() {
         List<GeoCorridorDto> corridors = geoService.getGeoCorridors();
         return ResponseEntity.ok(corridors);
     }
 }
+
