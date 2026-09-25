@@ -7,45 +7,21 @@ import java.util.List;
 
 public class PredictionRequest {
 
-    @JsonProperty("model_name")
-    private String modelName = "graphsage";
-
-    @JsonProperty("nodes")
-    private List<PredictionNodeDto> nodes = new ArrayList<>();
-
-    @JsonProperty("edges")
-    private List<PredictionEdgeDto> edges = new ArrayList<>();
+    @JsonProperty("seed_entity_id")
+    private String seedEntityId;
 
     public PredictionRequest() {
     }
 
-    public PredictionRequest(String modelName, List<PredictionNodeDto> nodes, List<PredictionEdgeDto> edges) {
-        this.modelName = modelName;
-        this.nodes = nodes != null ? nodes : new ArrayList<>();
-        this.edges = edges != null ? edges : new ArrayList<>();
+    public PredictionRequest(String seedEntityId) {
+        this.seedEntityId = seedEntityId;
     }
 
-    public String getModelName() {
-        return modelName;
+    public String getSeedEntityId() {
+        return seedEntityId;
     }
 
-    public void setModelName(String modelName) {
-        this.modelName = modelName;
-    }
-
-    public List<PredictionNodeDto> getNodes() {
-        return nodes;
-    }
-
-    public void setNodes(List<PredictionNodeDto> nodes) {
-        this.nodes = nodes;
-    }
-
-    public List<PredictionEdgeDto> getEdges() {
-        return edges;
-    }
-
-    public void setEdges(List<PredictionEdgeDto> edges) {
-        this.edges = edges;
+    public void setSeedEntityId(String seedEntityId) {
+        this.seedEntityId = seedEntityId;
     }
 }

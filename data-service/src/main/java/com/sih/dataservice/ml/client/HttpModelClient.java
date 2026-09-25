@@ -23,7 +23,7 @@ public class HttpModelClient implements ModelClient {
     private final String modelServiceUrl;
 
     public HttpModelClient(
-            @Value("${model.service.url:http://localhost:8001}") String modelServiceUrl,
+            @Value("${model.service.url:http://localhost:8000}") String modelServiceUrl,
             @Value("${model.service.timeout.ms:3000}") int timeoutMs) {
         this.modelServiceUrl = modelServiceUrl;
 
@@ -40,12 +40,40 @@ public class HttpModelClient implements ModelClient {
     @Override
     public PredictionResponse predict(PredictionRequest request) {
         try {
-            return restClient.post()
-                    .uri("/predict")
+            com.fasterxml.jackson.databind.JsonNode rawResponse = restClient.post()
+                    .uri("/api/predict/subgraph")
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(request)
                     .retrieve()
-                    .body(PredictionResponse.class);
+                    .body(com.fasterxml.jackson.databind.JsonNode.class);
+
+            if (rawResponse == null) {
+                throw new IllegalStateException("Empty response from model service");
+            }
+
+            double risk = rawResponse.path("risk_probability").asDouble(0.5);
+            String confidenceTier = rawResponse.path("confidence_tier").asText("NORMAL");
+            double confidence = switch (confidenceTier) {
+                case "HIGH_CONFIDENCE" -> 0.90;
+                case "MEDIUM_CONFIDENCE" -> 0.60;
+                case "FIRST_TIME_RING_CANDIDATE" -> 0.75;
+                case "NORMAL" -> 0.30;
+                default -> 0.50;
+            };
+
+            java.util.List<com.sih.dataservice.ml.dto.TopNodeExplanation> topNodes = new java.util.ArrayList<>();
+            com.fasterxml.jackson.databind.JsonNode terminals = rawResponse.path("terminals");
+            if (terminals.isArray()) {
+                for (com.fasterxml.jackson.databind.JsonNode term : terminals) {
+                    String id = term.path("terminal_id").asText("unknown");
+                    double score = term.path("terminal_score").asDouble(0.5);
+                    topNodes.add(new com.sih.dataservice.ml.dto.TopNodeExplanation(id, score));
+                }
+            }
+
+            String modelVersion = "graphsage-live";
+
+            return new PredictionResponse(risk, confidence, topNodes, new java.util.ArrayList<>(), modelVersion);
         } catch (Exception e) {
             log.warn("Model service call failed to {}: {}", modelServiceUrl, e.getMessage());
             throw new IllegalStateException("Model service call failed: " + e.getMessage(), e);
@@ -56,7 +84,7 @@ public class HttpModelClient implements ModelClient {
     public boolean isAvailable() {
         try {
             String res = restClient.get()
-                    .uri("/health")
+                    .uri("/api/health")
                     .retrieve()
                     .body(String.class);
             return res != null && res.contains("ok");

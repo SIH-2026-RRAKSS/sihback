@@ -12,8 +12,6 @@ import com.sih.dataservice.graph.model.GraphEdge;
 import com.sih.dataservice.graph.model.GraphNode;
 import com.sih.dataservice.graph.model.Subgraph;
 import com.sih.dataservice.ml.client.ModelClient;
-import com.sih.dataservice.ml.dto.PredictionEdgeDto;
-import com.sih.dataservice.ml.dto.PredictionNodeDto;
 import com.sih.dataservice.ml.dto.PredictionRequest;
 import com.sih.dataservice.ml.dto.PredictionResponse;
 import com.sih.dataservice.streaming.dto.StartStreamingRequest;
@@ -326,31 +324,9 @@ public class StreamingReplayService {
     }
 
     private PredictionRequest buildDeidentifiedRequest(Subgraph subgraph) {
-        if (subgraph == null || subgraph.getNodes().isEmpty()) {
-            return new PredictionRequest("graphsage", List.of(), List.of());
+        if (subgraph == null || subgraph.getRootEntityId() == null) {
+            return new PredictionRequest("unknown");
         }
-        Map<UUID, String> opaqueIdMap = new HashMap<>();
-        List<PredictionNodeDto> nodeDtos = new ArrayList<>();
-        int index = 0;
-        for (GraphNode node : subgraph.getNodes().values()) {
-            String opaqueId = "node-" + index++;
-            opaqueIdMap.put(node.getEntityId(), opaqueId);
-            Map<String, Double> features = new HashMap<>();
-            features.put("risk_score", node.getRiskScore());
-            features.put("hop_depth", (double) subgraph.getNodeDepths().getOrDefault(node.getEntityId(), 0));
-            nodeDtos.add(new PredictionNodeDto(opaqueId, features));
-        }
-        List<GraphEdge> edges = subgraph.getEdges();
-        List<PredictionEdgeDto> edgeDtos = new ArrayList<>();
-        if (edges != null) {
-            for (GraphEdge edge : edges) {
-                String source = opaqueIdMap.get(edge.getSourceEntityId());
-                String target = opaqueIdMap.get(edge.getTargetEntityId());
-                if (source != null && target != null) {
-                    edgeDtos.add(new PredictionEdgeDto(source, target, edge.getAmount().doubleValue(), edge.getTimestamp()));
-                }
-            }
-        }
-        return new PredictionRequest("graphsage", nodeDtos, edgeDtos);
+        return new PredictionRequest(subgraph.getRootEntityId().toString());
     }
 }
