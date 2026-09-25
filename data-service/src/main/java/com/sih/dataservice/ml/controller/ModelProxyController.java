@@ -75,7 +75,7 @@ public class ModelProxyController {
             @RequestParam(name = "tier", required = false) String tier,
             @RequestParam(name = "min_risk", required = false) Double minRisk) {
         
-        int pythonPage = page + 1; // Translate 0-indexed to 1-indexed for Python
+        int pythonPage = page > 0 ? page : 1;
         
         StringBuilder path = new StringBuilder("/api/incidents?page=").append(pythonPage).append("&page_size=").append(size);
         if (tier != null) path.append("&tier=").append(tier);
@@ -133,6 +133,7 @@ public class ModelProxyController {
         }
     }
 }
+
 
 
 
