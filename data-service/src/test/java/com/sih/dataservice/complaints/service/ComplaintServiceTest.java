@@ -21,6 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import com.sih.dataservice.ml.repository.PredictionRepository;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
@@ -66,6 +67,8 @@ class ComplaintServiceTest {
     @Mock
     private ScopeService scopeService;
     @Mock
+    private PredictionRepository predictionRepository;
+    @Mock
     private AuditService auditService;
 
     private Clock fixedClock;
@@ -92,7 +95,7 @@ class ComplaintServiceTest {
                 cryptoService,
                 scopeService,
                 auditService,
-                fixedClock
+                fixedClock, predictionRepository
         );
 
         complainant = new User();
@@ -179,3 +182,7 @@ class ComplaintServiceTest {
         assertThat(PublicStatus.fromInternalStatus(ComplaintStatus.CLOSED_NOT_FRAUD)).isEqualTo(PublicStatus.CLOSED);
     }
 }
+
+
+
+

@@ -38,6 +38,14 @@ public class IncidentDetailDto {
     private List<CaseEventDto> events = new ArrayList<>();
     private List<EvidenceDto> evidence = new ArrayList<>();
 
+    // ML/Prediction Fields
+    private Double riskScore;
+    private String confidenceTier;
+    private String modelVersion;
+    private String topTerminalId; // We map the first terminal here for the summary view
+    private String topTerminalCity;
+    private List<String> topNodes = new ArrayList<>();
+
     public IncidentDetailDto() {
     }
 
@@ -266,4 +274,16 @@ public class IncidentDetailDto {
     public void setEvidence(List<EvidenceDto> evidence) {
         this.evidence = evidence;
     }
+    public Double getRiskScore() { return riskScore; }
+    public void setRiskScore(Double riskScore) { this.riskScore = riskScore; }
+    public String getConfidenceTier() { return confidenceTier; }
+    public void setConfidenceTier(String confidenceTier) { this.confidenceTier = confidenceTier; }
+    public String getModelVersion() { return modelVersion; }
+    public void setModelVersion(String modelVersion) { this.modelVersion = modelVersion; }
+    public String getTopTerminalId() { return topTerminalId; }
+    public void setTopTerminalId(String topTerminalId) { this.topTerminalId = topTerminalId; }
+    public String getTopTerminalCity() { return topTerminalCity; }
+    public void setTopTerminalCity(String topTerminalCity) { this.topTerminalCity = topTerminalCity; }
+    public List<String> getTopNodes() { return topNodes; }
+    public void setTopNodes(List<String> topNodes) { this.topNodes = topNodes; }
 }

@@ -59,7 +59,10 @@ public class HttpModelClient implements ModelClient {
                 case "FIRST_TIME_RING_CANDIDATE" -> 0.75;
                 case "NORMAL" -> 0.30;
                 case "UNCLASSIFIED" -> 0.50;
-                default -> 0.50;
+                default -> {
+                    log.warn("Unknown confidence tier received from model: {}", confidenceTier);
+                    yield 0.50;
+                }
             };
 
             java.util.List<com.sih.dataservice.ml.dto.TopNodeExplanation> topNodes = new java.util.ArrayList<>();

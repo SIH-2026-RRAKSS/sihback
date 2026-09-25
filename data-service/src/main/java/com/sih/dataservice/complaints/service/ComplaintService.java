@@ -32,6 +32,10 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+import com.sih.dataservice.ml.repository.PredictionRepository;
+import com.sih.dataservice.ml.entity.Prediction;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class ComplaintService {
@@ -53,6 +57,8 @@ public class ComplaintService {
     private final ScopeService scopeService;
     private final AuditService auditService;
     private final Clock clock;
+    private final PredictionRepository predictionRepository;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public ComplaintService(
             ComplaintRepository complaintRepository,
@@ -69,7 +75,7 @@ public class ComplaintService {
             CryptoService cryptoService,
             ScopeService scopeService,
             AuditService auditService,
-            Clock clock) {
+            Clock clock, PredictionRepository predictionRepository) {
         this.complaintRepository = complaintRepository;
         this.complaintAccountRepository = complaintAccountRepository;
         this.financialEntityRepository = financialEntityRepository;
@@ -85,6 +91,7 @@ public class ComplaintService {
         this.scopeService = scopeService;
         this.auditService = auditService;
         this.clock = clock;
+        this.predictionRepository = predictionRepository;
     }
 
     /**
@@ -238,6 +245,7 @@ public class ComplaintService {
         scopeService.enforceCaseAccess(principal, complaint.getComplainant().getId(), null, path);
 
         IncidentDetailDto dto = IncidentDetailDto.fromEntity(complaint);
+        enrichWithPrediction(dto);
 
         // Load associated accounts
         List<ComplaintAccountDto> accounts = complaintAccountRepository.findByComplaintId(complaintId)
@@ -302,6 +310,45 @@ public class ComplaintService {
                 throw ApiException.forbidden("Access denied to incident list");
         }
 
-        return page.map(IncidentDetailDto::fromEntity);
+        return page.map(IncidentDetailDto::fromEntity).map(this::enrichWithPrediction);
+    }
+
+    private IncidentDetailDto enrichWithPrediction(IncidentDetailDto dto) {
+        predictionRepository.findTopByComplaintIdOrderByCreatedAtDesc(dto.getId()).ifPresent(pred -> {
+            dto.setRiskScore(pred.getRisk() != null ? pred.getRisk().doubleValue() : null);
+            dto.setConfidenceTier(pred.getConfidence() != null ? String.valueOf(pred.getConfidence().doubleValue()) : null);
+            if (pred.getModelVersion() != null) dto.setModelVersion(pred.getModelVersion().getName());
+            
+            try {
+                if (pred.getExplanation() != null && !pred.getExplanation().equals("{}")) {
+                    JsonNode expl = objectMapper.readTree(pred.getExplanation());
+                    JsonNode topNodes = expl.path("topNodes");
+                    if (topNodes.isArray() && topNodes.size() > 0) {
+                        java.util.List<String> nodes = new java.util.ArrayList<>();
+                        for (JsonNode n : topNodes) {
+                            if (n.has("id")) nodes.add(n.get("id").asText());
+                        }
+                        dto.setTopNodes(nodes);
+                        if (!nodes.isEmpty()) dto.setTopTerminalId(nodes.get(0));
+                    }
+                }
+            } catch (Exception e) {
+                log.warn("Failed to parse prediction explanation json for complaint {}", dto.getId());
+            }
+            
+            // Map numeric confidence back to string tier for frontend
+            if (dto.getConfidenceTier() != null) {
+                double conf = Double.parseDouble(dto.getConfidenceTier());
+                if (conf >= 0.90) dto.setConfidenceTier("HIGH_CONFIDENCE");
+                else if (conf >= 0.75) dto.setConfidenceTier("FIRST_TIME_RING_CANDIDATE");
+                else if (conf >= 0.60) dto.setConfidenceTier("MEDIUM_CONFIDENCE");
+                else if (conf >= 0.50) dto.setConfidenceTier("UNCLASSIFIED");
+                else dto.setConfidenceTier("NORMAL");
+            } else {
+                dto.setConfidenceTier("UNCLASSIFIED");
+            }
+        });
+        return dto;
     }
 }
+
