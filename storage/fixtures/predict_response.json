@@ -1,0 +1,29 @@
+{
+  "risk": 0.8750,
+  "confidence": 0.9200,
+  "top_nodes": [
+    {
+      "id": "node-0",
+      "score": 0.8920
+    },
+    {
+      "id": "node-1",
+      "score": 0.7640
+    }
+  ],
+  "top_features": [
+    {
+      "name": "fan_out_ratio",
+      "weight": 0.4210
+    },
+    {
+      "name": "velocity_burst",
+      "weight": 0.3150
+    },
+    {
+      "name": "amount_deviation",
+      "weight": 0.1840
+    }
+  ],
+  "model_version": "graphsage-v1.0.0"
+}

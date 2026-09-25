@@ -1,0 +1,55 @@
+{
+  "model_name": "graphsage",
+  "nodes": [
+    {
+      "id": "node-0",
+      "features": {
+        "degree": 3.0,
+        "in_degree": 1.0,
+        "out_degree": 2.0,
+        "amount_mean": 15000.0,
+        "amount_std": 2500.0,
+        "velocity": 3.0,
+        "hop_depth": 0.0
+      }
+    },
+    {
+      "id": "node-1",
+      "features": {
+        "degree": 2.0,
+        "in_degree": 2.0,
+        "out_degree": 0.0,
+        "amount_mean": 7500.0,
+        "amount_std": 500.0,
+        "velocity": 2.0,
+        "hop_depth": 1.0
+      }
+    },
+    {
+      "id": "node-2",
+      "features": {
+        "degree": 1.0,
+        "in_degree": 1.0,
+        "out_degree": 0.0,
+        "amount_mean": 7500.0,
+        "amount_std": 0.0,
+        "velocity": 1.0,
+        "hop_depth": 1.0
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "node-0",
+      "target": "node-1",
+      "amount": 7500.0,
+      "timestamp": "2026-09-22T10:00:00Z"
+    },
+    {
+      "source": "node-0",
+      "target": "node-2",
+      "amount": 7500.0,
+      "timestamp": "2026-09-22T10:05:00Z"
+    }
+  ]
+}
