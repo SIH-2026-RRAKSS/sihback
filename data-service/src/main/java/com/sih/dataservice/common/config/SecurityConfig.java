@@ -45,12 +45,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Allow deployed frontend and local dev
+        // Allow specifically the production vercel deployment and local dev
         configuration.setAllowedOriginPatterns(List.of(
-            "https://sihweb-production.up.railway.app",
-            "https://*.vercel.app", // standard Vercel deployments
-            "http://localhost:5173",
-            "http://localhost:5174"
+            "https://trinetraaa.vercel.app",
+            "http://localhost:5173"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         // Explicitly including X-Request-Id from MDCFilter

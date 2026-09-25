@@ -58,6 +58,7 @@ public class HttpModelClient implements ModelClient {
                 case "MEDIUM_CONFIDENCE" -> 0.60;
                 case "FIRST_TIME_RING_CANDIDATE" -> 0.75;
                 case "NORMAL" -> 0.30;
+                case "UNCLASSIFIED" -> 0.50;
                 default -> 0.50;
             };
 
