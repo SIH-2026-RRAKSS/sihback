@@ -60,7 +60,7 @@ public class IncidentController {
 
     @Operation(summary = "List incidents visible to authenticated staff based on role and jurisdiction/bank scope")
     @GetMapping
-    @PreAuthorize("hasAnyRole('POLICE', 'CYBER_OFFICER', 'BANK_EMPLOYEE', 'BANK_MANAGER')")
+    @PreAuthorize("hasAnyRole('POLICE', 'CYBER_OFFICER', 'BANK_EMPLOYEE', 'BANK_MANAGER', 'ADMIN')")
     public ResponseEntity<ApiResponse<Page<IncidentDetailDto>>> listIncidents(
             @RequestParam(name = "status", required = false) ComplaintStatus status,
             @AuthenticationPrincipal UserPrincipal principal,
@@ -72,7 +72,7 @@ public class IncidentController {
 
     @Operation(summary = "Get full incident detail by ID (accounts, events, evidence). Returns 404 if out-of-scope.")
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('POLICE', 'CYBER_OFFICER', 'BANK_EMPLOYEE', 'BANK_MANAGER')")
+    @PreAuthorize("hasAnyRole('POLICE', 'CYBER_OFFICER', 'BANK_EMPLOYEE', 'BANK_MANAGER', 'ADMIN')")
     public ResponseEntity<ApiResponse<IncidentDetailDto>> getIncidentDetail(
             @PathVariable("id") UUID id,
             @AuthenticationPrincipal UserPrincipal principal) {
@@ -111,7 +111,7 @@ public class IncidentController {
 
     @Operation(summary = "Get K-hop incident graph around complaint accounts with scope masking")
     @GetMapping("/{id}/graph")
-    @PreAuthorize("hasAnyRole('POLICE', 'CYBER_OFFICER', 'BANK_EMPLOYEE', 'BANK_MANAGER')")
+    @PreAuthorize("hasAnyRole('POLICE', 'CYBER_OFFICER', 'BANK_EMPLOYEE', 'BANK_MANAGER', 'ADMIN')")
     public ResponseEntity<ApiResponse<SubgraphResponseDto>> getIncidentGraph(
             @PathVariable("id") UUID id,
             @RequestParam(name = "hops", defaultValue = "2") int hops,
@@ -165,7 +165,7 @@ public class IncidentController {
 
     @Operation(summary = "Get all freeze requests associated with this incident")
     @GetMapping("/{id}/freeze-requests")
-    @PreAuthorize("hasAnyRole('POLICE', 'CYBER_OFFICER', 'BANK_EMPLOYEE', 'BANK_MANAGER')")
+    @PreAuthorize("hasAnyRole('POLICE', 'CYBER_OFFICER', 'BANK_EMPLOYEE', 'BANK_MANAGER', 'ADMIN')")
     public ResponseEntity<ApiResponse<java.util.List<com.sih.dataservice.freeze.dto.FreezeRequestResponseDto>>> getIncidentFreezeRequests(
             @PathVariable("id") UUID id,
             @AuthenticationPrincipal UserPrincipal principal) {

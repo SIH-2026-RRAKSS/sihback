@@ -27,6 +27,7 @@ public class ScopeService {
         UserRole role = principal.getRole();
 
         switch (role) {
+            case ADMIN:
             case CYBER_OFFICER:
                 return true;
 
@@ -44,7 +45,7 @@ public class ScopeService {
                 // Prefix match: a district officer at /OD/KHORDHA/ sees /OD/KHORDHA/STATION_A/
                 return caseJurisdictionPath.startsWith(principal.getJurisdictionPath());
 
-            case ADMIN:
+            
             default:
                 // Admins manage users and config, never case data
                 return false;
@@ -73,6 +74,7 @@ public class ScopeService {
         UserRole role = principal.getRole();
 
         switch (role) {
+            case ADMIN:
             case CYBER_OFFICER:
                 return true;
 
@@ -87,7 +89,7 @@ public class ScopeService {
                 return nodeJurisdictionPath.startsWith(principal.getJurisdictionPath());
 
             case COMPLAINANT:
-            case ADMIN:
+            
             default:
                 return false;
         }

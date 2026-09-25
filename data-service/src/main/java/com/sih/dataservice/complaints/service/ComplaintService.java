@@ -272,6 +272,7 @@ public class ComplaintService {
 
         Page<Complaint> page;
         switch (role) {
+            case ADMIN:
             case CYBER_OFFICER:
                 if (status != null) {
                     page = complaintRepository.findByStatus(status, pageable);
