@@ -5,6 +5,7 @@ import com.sih.dataservice.users.entity.UserRole;
 import com.sih.dataservice.users.entity.UserStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -15,6 +16,10 @@ import java.util.UUID;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
+    
+    @EntityGraph(attributePaths = {"bank", "jurisdiction"})
+    Optional<User> findById(UUID id);
+
     Optional<User> findByEmail(String email);
     Optional<User> findByEmployeeId(String employeeId);
     Optional<User> findByOauthProviderAndOauthSubject(String oauthProvider, String oauthSubject);
