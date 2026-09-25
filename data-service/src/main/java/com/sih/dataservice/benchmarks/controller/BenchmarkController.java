@@ -25,7 +25,7 @@ public class BenchmarkController {
     }
 
     @Operation(summary = "Execute 3-way evaluation comparing Gate-Only, XGBoost, and GraphSAGE (FR-BEN-1)")
-    @GetMapping("/three-way")
+    @GetMapping({"/three-way", "/three_way"})
     @PreAuthorize("hasAnyRole('CYBER_OFFICER', 'ADMIN', 'POLICE')")
     public ResponseEntity<ApiResponse<ThreeWayBenchmarkResult>> getThreeWayBenchmark(
             @RequestParam(name = "dataset", defaultValue = "synthetic_benchmark_seed42") String dataset) {
@@ -34,7 +34,7 @@ public class BenchmarkController {
     }
 
     @Operation(summary = "Execute streaming velocity throughput and gate reduction benchmark (FR-BEN-1)")
-    @GetMapping("/streaming")
+    @GetMapping({"/streaming", "/benchmark"})
     @PreAuthorize("hasAnyRole('CYBER_OFFICER', 'ADMIN', 'POLICE')")
     public ResponseEntity<ApiResponse<StreamingBenchmarkResult>> getStreamingBenchmark(
             @RequestParam(name = "count", defaultValue = "200") int count) {

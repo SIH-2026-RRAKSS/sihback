@@ -23,7 +23,7 @@ public class StatsController {
     }
 
     @Operation(summary = "Get overview statistics of complaints, predictions, amounts, and system health")
-    @GetMapping("/overview")
+    @GetMapping({"", "/overview"})
     @PreAuthorize("hasAnyRole('POLICE', 'CYBER_OFFICER', 'ADMIN')")
     public ResponseEntity<ApiResponse<SystemStatsDto>> getOverviewStats() {
         SystemStatsDto stats = statsService.getOverviewStats();

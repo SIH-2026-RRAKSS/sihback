@@ -71,6 +71,8 @@ public class SecurityConfig {
                                 "/health",
                                 "/ping",
                                 "/auth/**",
+                                "/entities/**",
+                                "/geo/**",
                                 "/whatsapp/**",
                                 "/actuator/**",
                                 "/v3/api-docs/**",
