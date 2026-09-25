@@ -1,29 +1,30 @@
 package com.sih.dataservice.seed;
 
+import com.sih.dataservice.users.entity.Bank;
+import com.sih.dataservice.users.entity.Jurisdiction;
 import com.sih.dataservice.users.entity.User;
 import com.sih.dataservice.users.entity.UserRole;
 import com.sih.dataservice.users.entity.UserStatus;
+import com.sih.dataservice.users.repository.BankRepository;
+import com.sih.dataservice.users.repository.JurisdictionRepository;
 import com.sih.dataservice.users.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import java.util.UUID;
-
 @Component
 public class DataSeeder implements CommandLineRunner {
 
     private final UserRepository userRepository;
+    private final BankRepository bankRepository;
+    private final JurisdictionRepository jurisdictionRepository;
     private final PasswordEncoder passwordEncoder;
-    
-    @PersistenceContext
-    private EntityManager entityManager;
 
-    public DataSeeder(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public DataSeeder(UserRepository userRepository, BankRepository bankRepository, JurisdictionRepository jurisdictionRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.bankRepository = bankRepository;
+        this.jurisdictionRepository = jurisdictionRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -37,19 +38,15 @@ public class DataSeeder implements CommandLineRunner {
 
     private void seedUsers() {
         // Seed dummy bank
-        UUID bankId = UUID.randomUUID();
-        entityManager.createNativeQuery("INSERT INTO banks (id, code, name, active) VALUES (:id, 'SBI', 'State Bank of India', true)")
-                .setParameter("id", bankId)
-                .executeUpdate();
+        Bank bankEntity = new Bank("SBI", "State Bank of India", true);
+        bankEntity = bankRepository.save(bankEntity);
 
         // Seed dummy jurisdiction
-        UUID jurId = UUID.randomUUID();
-        entityManager.createNativeQuery("INSERT INTO jurisdictions (id, level, name, path) VALUES (:id, 'STATION', 'Central Delhi', 'DL/CENTRAL')")
-                .setParameter("id", jurId)
-                .executeUpdate();
-
-        com.sih.dataservice.users.entity.Bank bankEntity = entityManager.find(com.sih.dataservice.users.entity.Bank.class, bankId);
-        com.sih.dataservice.users.entity.Jurisdiction jurEntity = entityManager.find(com.sih.dataservice.users.entity.Jurisdiction.class, jurId);
+        Jurisdiction jurEntity = new Jurisdiction();
+        jurEntity.setLevel("STATION");
+        jurEntity.setName("Central Delhi");
+        jurEntity.setPath("DL/CENTRAL");
+        jurEntity = jurisdictionRepository.save(jurEntity);
 
         // CYBER001
         User cyber = new User();
