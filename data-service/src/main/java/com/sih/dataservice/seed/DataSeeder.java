@@ -5,6 +5,7 @@ import com.sih.dataservice.users.entity.Jurisdiction;
 import com.sih.dataservice.users.entity.User;
 import com.sih.dataservice.users.entity.UserRole;
 import com.sih.dataservice.users.entity.UserStatus;
+import com.sih.dataservice.users.entity.JurisdictionLevel;
 import com.sih.dataservice.users.repository.BankRepository;
 import com.sih.dataservice.users.repository.JurisdictionRepository;
 import com.sih.dataservice.users.repository.UserRepository;
@@ -43,7 +44,7 @@ public class DataSeeder implements CommandLineRunner {
 
         // Seed dummy jurisdiction
         Jurisdiction jurEntity = new Jurisdiction();
-        jurEntity.setLevel("STATION");
+        jurEntity.setLevel(JurisdictionLevel.STATION);
         jurEntity.setName("Central Delhi");
         jurEntity.setPath("DL/CENTRAL");
         jurEntity = jurisdictionRepository.save(jurEntity);

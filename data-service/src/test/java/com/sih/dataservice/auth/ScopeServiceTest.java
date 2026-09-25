@@ -101,8 +101,8 @@ class ScopeServiceTest {
                 UserRole.ADMIN, null, null, 1, UserStatus.ACTIVE
         );
 
-        // Admins manage users, never cases
-        assertThat(scopeService.isCaseInScope(admin, UUID.randomUUID(), UUID.randomUUID(), "/OD/KHORDHA/")).isFalse();
+        // Admins manage users, but need read access for Command Center metrics
+        assertThat(scopeService.isCaseInScope(admin, UUID.randomUUID(), UUID.randomUUID(), "/OD/KHORDHA/")).isTrue();
     }
 
     @Test
