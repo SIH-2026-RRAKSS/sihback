@@ -40,7 +40,7 @@ public class StreamingController {
     }
 
     @Operation(summary = "Start live transaction replay from dataset at adjustable speed (FR-STR-1)")
-    @PostMapping("/start")
+    @PostMapping("/legacy/start")
     @PreAuthorize("hasAnyRole('CYBER_OFFICER', 'ADMIN')")
     public ResponseEntity<ApiResponse<StreamingStatusDto>> startReplay(
             @RequestBody(required = false) StartStreamingRequest request) {
@@ -90,3 +90,4 @@ public class StreamingController {
         return ResponseEntity.ok(ApiResponse.ok(status));
     }
 }
+

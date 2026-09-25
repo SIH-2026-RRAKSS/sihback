@@ -119,6 +119,31 @@ public class ModelProxyController {
     }
 
 
+        @org.springframework.web.bind.annotation.PostMapping(value = "/simulate/stream", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyRole('POLICE', 'CYBER_OFFICER', 'ADMIN')")
+    public ResponseEntity<?> proxySimulateStream(
+            @RequestParam(name = "dataset", defaultValue = "synthetic") String dataset,
+            @RequestParam(name = "num_tx", defaultValue = "50") int numTx,
+            @RequestParam(name = "offset", defaultValue = "0") int offset) {
+        
+        String path = "/api/simulate/stream?dataset=" + dataset + "&num_tx=" + numTx + "&offset=" + offset;
+        return proxyPost(path);
+    }
+
+    private ResponseEntity<?> proxyPost(String path) {
+        try {
+            String rawJson = restClient.post()
+                    .uri(path)
+                    .retrieve()
+                    .body(String.class);
+            return ResponseEntity.ok(rawJson);
+        } catch (Exception e) {
+            log.error("Failed to proxy POST {} to model service: {}", path, e.getMessage());
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                    .body("{\"error\": \"Model service unavailable or returned an error\"}");
+        }
+    }
+
     private ResponseEntity<?> proxyGet(String path) {
         try {
             String rawJson = restClient.get()
@@ -133,6 +158,7 @@ public class ModelProxyController {
         }
     }
 }
+
 
 
 
