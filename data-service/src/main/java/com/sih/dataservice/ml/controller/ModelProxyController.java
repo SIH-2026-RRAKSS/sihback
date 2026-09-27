@@ -85,13 +85,17 @@ public class ModelProxyController {
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "20") int size,
             @RequestParam(name = "tier", required = false) String tier,
-            @RequestParam(name = "min_risk", required = false) Double minRisk) {
+            @RequestParam(name = "min_risk", required = false) Double minRisk,
+            @RequestParam(name = "search", required = false) String search,
+            @RequestParam(name = "dataset", required = false) String dataset) {
         
         int pythonPage = page > 0 ? page : 1;
         
         StringBuilder path = new StringBuilder("/api/incidents?page=").append(pythonPage).append("&page_size=").append(size);
         if (tier != null) path.append("&tier=").append(tier);
         if (minRisk != null) path.append("&min_risk=").append(minRisk);
+        if (search != null && !search.isBlank()) path.append("&search=").append(search);
+        if (dataset != null && !dataset.isBlank()) path.append("&dataset=").append(dataset);
         
         return proxyGet(path.toString());
     }
@@ -185,6 +189,34 @@ public class ModelProxyController {
             return ResponseEntity.ok(rawJson);
         } catch (Exception e) {
             log.error("Failed to proxy predict for {}, error: {}", id, e.getMessage());
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                    .body("{\"error\": \"Model service unavailable or returned an error\"}");
+        }
+    }
+
+    @org.springframework.web.bind.annotation.PostMapping(value = "/policy/tune", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyRole('POLICE', 'CYBER_OFFICER', 'ADMIN')")
+    public ResponseEntity<?> proxyTunePolicy(@org.springframework.web.bind.annotation.RequestBody String body) {
+        return proxyPostWithBody("/api/policy/tune", body);
+    }
+
+    @GetMapping(value = "/benchmarks/three_way", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyRole('POLICE', 'CYBER_OFFICER', 'ADMIN')")
+    public ResponseEntity<?> proxyThreeWayBenchmarks() {
+        return proxyGet("/api/benchmarks/three_way");
+    }
+
+    private ResponseEntity<?> proxyPostWithBody(String path, Object body) {
+        try {
+            String rawJson = restClient.post()
+                    .uri(path)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(body)
+                    .retrieve()
+                    .body(String.class);
+            return ResponseEntity.ok(rawJson);
+        } catch (Exception e) {
+            log.error("Failed to proxy POST {} to model service: {}", path, e.getMessage());
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                     .body("{\"error\": \"Model service unavailable or returned an error\"}");
         }

@@ -24,7 +24,7 @@ public class PolicyController {
     }
 
     @Operation(summary = "Perform threshold sweep over labeled ground truth cases to compute precision, recall, and F1 curve")
-    @GetMapping({"/threshold-sweep", "/tune"})
+    @GetMapping("/threshold-sweep")
     @PreAuthorize("hasAnyRole('POLICE', 'CYBER_OFFICER')")
     public ResponseEntity<ApiResponse<PolicyEvaluationResultDto>> getThresholdSweep() {
         PolicyEvaluationResultDto result = policyEvaluationService.evaluateThresholdSweep();
@@ -32,7 +32,7 @@ public class PolicyController {
     }
 
     @Operation(summary = "Tune policy thresholds over labeled cases")
-    @PostMapping("/tune")
+    @PostMapping("/internal-tune")
     @PreAuthorize("hasAnyRole('POLICE', 'CYBER_OFFICER')")
     public ResponseEntity<ApiResponse<PolicyEvaluationResultDto>> tunePolicy() {
         PolicyEvaluationResultDto result = policyEvaluationService.evaluateThresholdSweep();
