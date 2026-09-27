@@ -49,6 +49,11 @@ public class ModelProxyController {
     }
 
     // Replaces StatsController mapped to /stats
+    @GetMapping(value = "/model-health", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> proxyModelHealth() {
+        return proxyGet("/api/health");
+    }
+
     @GetMapping(value = "/stats", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyRole('POLICE', 'CYBER_OFFICER', 'ADMIN')")
     public ResponseEntity<?> proxyStats() {
