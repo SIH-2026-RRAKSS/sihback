@@ -93,6 +93,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/health",
+                                "/model-health",
                                 "/ping",
                                 "/auth/**",
                                 "/entities/**",
