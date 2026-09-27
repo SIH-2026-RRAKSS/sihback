@@ -107,12 +107,10 @@ public class ModelProxyController {
             
             if (rootNode.has("investigative_evidence_bullets")) {
                 explainability.set("investigative_evidence_bullets", rootNode.get("investigative_evidence_bullets"));
-                rootNode.remove("investigative_evidence_bullets");
             }
             
             if (rootNode.has("top_terminal_details")) {
                 explainability.set("terminal_prediction", rootNode.get("top_terminal_details"));
-                rootNode.remove("top_terminal_details");
             }
             
             rootNode.set("explainability", explainability);
@@ -123,6 +121,14 @@ public class ModelProxyController {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                     .body("{\"error\": \"Model service unavailable or returned an error\"}");
         }
+    }
+
+    @GetMapping(value = "/dossier/{id}/export")
+    @PreAuthorize("hasAnyRole('POLICE', 'CYBER_OFFICER', 'BANK_EMPLOYEE', 'BANK_MANAGER', 'ADMIN')")
+    public ResponseEntity<?> proxyExportDossier(
+            @PathVariable("id") String id,
+            @RequestParam(name = "format", defaultValue = "markdown") String format) {
+        return proxyGet("/api/dossier/" + id + "/export?format=" + format);
     }
 
 
