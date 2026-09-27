@@ -38,7 +38,7 @@ public class ModelProxyController {
 
     public ModelProxyController(
             @Value("${model.service.url:http://localhost:8000}") String modelServiceUrl,
-            @Value("${model.service.timeout.ms:5000}") int timeoutMs) {
+            @Value("${model.service.timeout.ms:60000}") int timeoutMs) {
         
         org.springframework.http.client.SimpleClientHttpRequestFactory requestFactory = new org.springframework.http.client.SimpleClientHttpRequestFactory();
         requestFactory.setConnectTimeout(Duration.ofMillis(timeoutMs));
