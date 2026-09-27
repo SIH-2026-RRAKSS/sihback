@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.web.bind.annotation.RequestParam;
+import java.util.Map;
+import java.util.HashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -148,6 +150,30 @@ public class ModelProxyController {
             return ResponseEntity.ok(rawJson);
         } catch (Exception e) {
             log.error("Failed to proxy POST /api/predict/subgraph to model service: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                    .body("{\"error\": \"Model service unavailable or returned an error\"}");
+        }
+    }
+
+    
+    @org.springframework.web.bind.annotation.PostMapping(value = "/incidents/{id}/predict", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyRole('POLICE', 'CYBER_OFFICER', 'ADMIN')")
+    public ResponseEntity<?> proxyPredictLiveEntity(@org.springframework.web.bind.annotation.PathVariable("id") String id) {
+        try {
+            Map<String, Object> body = new HashMap<>();
+            body.put("seed_entity_id", id);
+            body.put("max_hops", 3);
+
+            String rawJson = restClient.post()
+                    .uri("/api/predict/subgraph")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(body)
+                    .retrieve()
+                    .body(String.class);
+
+            return ResponseEntity.ok(rawJson);
+        } catch (Exception e) {
+            log.error("Failed to proxy predict for {}, error: {}", id, e.getMessage());
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                     .body("{\"error\": \"Model service unavailable or returned an error\"}");
         }
