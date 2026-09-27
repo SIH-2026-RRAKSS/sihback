@@ -94,6 +94,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/health",
                                 "/model-health",
+                                "/streaming/benchmark",
                                 "/ping",
                                 "/auth/**",
                                 "/entities/**",

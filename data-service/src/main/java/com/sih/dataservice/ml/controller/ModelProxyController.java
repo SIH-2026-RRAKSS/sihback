@@ -56,6 +56,11 @@ public class ModelProxyController {
         return proxyGet("/api/health");
     }
 
+    @GetMapping(value = "/streaming/benchmark", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> proxyStreamingBenchmark() {
+        return proxyGet("/api/streaming/benchmark");
+    }
+
     @GetMapping(value = "/stats", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> proxyStats() {
