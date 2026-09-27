@@ -111,10 +111,10 @@ public class SecurityConfig {
                         .requestMatchers("/freeze-requests/**").hasAnyRole("POLICE", "CYBER_OFFICER", "BANK_EMPLOYEE", "BANK_MANAGER", "ADMIN")
                         .requestMatchers("/graph/**").hasAnyRole("CYBER_OFFICER", "POLICE", "BANK_EMPLOYEE", "BANK_MANAGER")
                         .requestMatchers("/policy/**").hasAnyRole("CYBER_OFFICER", "POLICE")
-                        .requestMatchers("/stats/**").hasAnyRole("CYBER_OFFICER", "POLICE", "ADMIN")
+                        .requestMatchers("/stats/**").authenticated()
                         .requestMatchers("/ml-ops/**").hasAnyRole("CYBER_OFFICER", "ADMIN", "POLICE")
                         .requestMatchers("/streaming/**").hasAnyRole("CYBER_OFFICER", "POLICE", "ADMIN")
-                        .requestMatchers("/benchmarks/**").hasAnyRole("CYBER_OFFICER", "ADMIN", "POLICE")
+                        .requestMatchers("/benchmarks/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
